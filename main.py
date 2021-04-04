@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash, abort
+from flask import Flask, render_template, redirect, url_for, flash, abort, request
 from functools import wraps
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
@@ -9,6 +9,7 @@ from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 from flask_gravatar import Gravatar
+from notification_manager import send_email
 from os import environ
 
 app = Flask(__name__)
@@ -73,7 +74,7 @@ class Comment(db.Model):
     post = relationship("BlogPost", back_populates="comments")
 
 
-db.create_all()
+# db.create_all()
 
 
 # Decorator for permission to a route only for admin (user id 1)
@@ -176,8 +177,16 @@ def about():
     return render_template("about.html", current_user=current_user)
 
 
-@app.route("/contact")
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        send_email(f"Subject: Someone has written to you through your blog!\n\n"
+                   f"Name: {name}\n"
+                   f"Email: {request.form.get('email')}\n"
+                   f"Phone: {request.form.get('phone')}\n\n"
+                   f"Message: {request.form.get('message')}\n".encode('utf-8'))
+        return redirect(url_for('get_all_posts'))
     return render_template("contact.html", current_user=current_user)
 
 
