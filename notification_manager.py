@@ -2,9 +2,9 @@ import smtplib
 import os
 
 
-email_notifier = "physical.taco@gmail.com"
+email_notifier = "physical.taco@yahoo.com"
 password = os.environ.get("EMAIL_KEY")
-host = "smtp.gmail.com"
+host = "smtp.mail.yahoo.com"
 
 
 def send_email(text):
@@ -14,6 +14,6 @@ def send_email(text):
         connection.login(user=email_notifier, password=password)
         connection.sendmail(
             from_addr=email_notifier,
-            to_addrs=email_notifier,
+            to_addrs='physical.taco@gmail.com',
             msg=text
         )
